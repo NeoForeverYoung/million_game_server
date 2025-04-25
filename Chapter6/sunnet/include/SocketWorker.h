@@ -6,11 +6,11 @@ using namespace std;
 
 class SocketWorker { 
 private:
-    //epoll描述符
+    //epoll鎻忚堪绗�
     int epollFd;
 public:
-    void Init();        //初始化
-    void operator()();  //线程函数
+    void Init();        //鍒濆�嬪寲
+    void operator()();  //绾跨▼鍑芥暟
 public:
     void AddEvent(int fd);
     void RemoveEvent(int fd);

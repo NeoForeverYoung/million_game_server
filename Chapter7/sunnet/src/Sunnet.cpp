@@ -11,63 +11,63 @@
 
 using namespace std;
 
-//单例
+//閸楁洑绶�
 Sunnet* Sunnet::inst;
 Sunnet::Sunnet(){
     inst = this;
 }
 
-//开启worker线程
+//瀵�鈧�閸氱椇orker缁捐法鈻�
 void Sunnet::StartWorker() {
     for (int i = 0; i < WORKER_NUM; i++) {
         cout << "start worker thread:" << i << endl;
-        //创建线程对象
+        //閸掓稑缂撶痪璺ㄢ柤鐎电�呰杽
         Worker* worker = new Worker();
         worker->id = i;
         worker->eachNum = 2 << i;
-        //创建线程
+        //閸掓稑缂撶痪璺ㄢ柤
         thread* wt = new thread(*worker);
-        //添加到列表
+        //濞ｈ�插�為崚鏉垮灙鐞涳拷
         workers.push_back(worker);
         workerThreads.push_back(wt);
     }
 }
 
-//开启Socket线程
+//瀵�鈧�閸氱柇ocket缁捐法鈻�
 void Sunnet::StartSocket() {
-    //创建线程对象
+    //閸掓稑缂撶痪璺ㄢ柤鐎电�呰杽
     socketWorker = new SocketWorker();
-    //初始化
+    //閸掓繂锟藉��瀵�
     socketWorker->Init();
-    //创建线程
+    //閸掓稑缂撶痪璺ㄢ柤
     socketThread = new thread(*socketWorker);
 }
 
-//开启系统
+//瀵�鈧�閸氾拷缁�鑽ょ埠
 void Sunnet::Start() {
     cout << "Hello Sunnet" << endl;
-    //忽略SIGPIPE信号
+    //韫囩晫鏆怱IGPIPE娣団€冲娇
     signal(SIGPIPE, SIG_IGN);
-    //锁
+    //闁匡拷
     pthread_rwlock_init(&servicesLock, NULL);
     assert(pthread_rwlock_init(&connsLock, NULL)==0);
     pthread_spin_init(&globalLock, PTHREAD_PROCESS_PRIVATE);
     pthread_cond_init(&sleepCond, NULL);
     pthread_mutex_init(&sleepMtx, NULL);    
-    //开启Worker
+    //瀵�鈧�閸氱柣orker
     StartWorker();
-    //开启Socket线程
+    //瀵�鈧�閸氱柇ocket缁捐法鈻�
     StartSocket();
 }
 
-//等待
+//缁涘�婄窡
 void Sunnet::Wait() {
     if( workerThreads[0]) {
         workerThreads[0]->join();
     }
 }
 
-//新建服务
+//閺傛澘缂撻張宥呭��
 uint32_t Sunnet::NewService(shared_ptr<string> type) {
     auto srv = make_shared<Service>();
     srv->type = type;
@@ -78,11 +78,11 @@ uint32_t Sunnet::NewService(shared_ptr<string> type) {
         services.emplace(srv->id, srv);
     }
     pthread_rwlock_unlock(&servicesLock);
-    srv->OnInit(); //初始化
+    srv->OnInit(); //閸掓繂锟藉��瀵�
     return srv->id;
 }
 
-//由id查找服务
+//閻㈢湈d閺屻儲澹橀張宥呭��
 shared_ptr<Service> Sunnet::GetService(uint32_t id) {
     shared_ptr<Service> srv = NULL;
     pthread_rwlock_rdlock(&servicesLock);
@@ -96,17 +96,17 @@ shared_ptr<Service> Sunnet::GetService(uint32_t id) {
     return srv;
 }
 
-//删除服务
-//只能service自己调自己，因为srv->OnExit、srv->isExiting不加锁
+//閸掔娀娅庨張宥呭��
+//閸欙拷閼崇氮ervice閼凤拷瀹歌精鐨熼懛锟藉�告唻绱濋崶鐘辫礋srv->OnExit閵嗕够rv->isExiting娑撳秴濮為柨锟�
 void Sunnet::KillService(uint32_t id) {
     shared_ptr<Service> srv = GetService(id);
     if(!srv){
         return;
     }
-    //退出前
+    //闁�鈧�閸戝搫澧�
     srv->OnExit();
     srv->isExiting = true;
-    //删列表
+    //閸掔姴鍨�鐞涳拷
     pthread_rwlock_wrlock(&servicesLock);
     {
         services.erase(id);
@@ -115,7 +115,7 @@ void Sunnet::KillService(uint32_t id) {
 }
 
 
-//发送消息
+//閸欐垿鈧�浣圭Х閹�锟�
 void Sunnet::Send(uint32_t toId, shared_ptr<BaseMsg> msg){
     shared_ptr<Service> toSrv = GetService(toId);
     if(!toSrv){
@@ -123,8 +123,8 @@ void Sunnet::Send(uint32_t toId, shared_ptr<BaseMsg> msg){
         return;
     }
     toSrv->PushMsg(msg);
-    //检查并放入全局队列
-    //为缩小临界区灵活控制，破坏封装性
+    //濡�鈧�閺屻儱鑻熼弨鎯у弳閸忋劌鐪�闂冪喎鍨�
+    //娑撹櫣缂夌亸蹇庡�嶉悾灞藉隘閻忓灚妞块幒褍鍩楅敍宀€鐗�閸у繐鐨濈憗鍛�鈧�锟�
     bool hasPush = false;
     pthread_spin_lock(&toSrv->inGlobalLock);
     {
@@ -135,13 +135,13 @@ void Sunnet::Send(uint32_t toId, shared_ptr<BaseMsg> msg){
         }
     }
     pthread_spin_unlock(&toSrv->inGlobalLock);
-    //唤起进程，不放在临界区里面
+    //閸炪倛鎹ｆ潻娑氣柤閿涘奔绗夐弨鎯ф躬娑撳�告櫕閸栨椽鍣烽棃锟�
     if(hasPush) {
         CheckAndWeakUp();
     }
 }
 
-//弹出全局队列
+//瀵�鐟板毉閸忋劌鐪�闂冪喎鍨�
 shared_ptr<Service> Sunnet::PopGlobalQueue(){
     shared_ptr<Service> srv = NULL;
     pthread_spin_lock(&globalLock);
@@ -156,7 +156,7 @@ shared_ptr<Service> Sunnet::PopGlobalQueue(){
     return srv;
 }
 
-//插入全局队列
+//閹绘帒鍙嗛崗銊ョ湰闂冪喎鍨�
 void Sunnet::PushGlobalQueue(shared_ptr<Service> srv){
     pthread_spin_lock(&globalLock);
     {
@@ -167,20 +167,20 @@ void Sunnet::PushGlobalQueue(shared_ptr<Service> srv){
 }
 
 
-//仅测试用，buff须由new产生
+//娴犲懏绁寸拠鏇犳暏閿涘異uff妞よ崵鏁眓ew娴溠呮晸
 shared_ptr<BaseMsg> Sunnet::MakeMsg(uint32_t source, char* buff, int len) {
     auto msg= make_shared<ServiceMsg>();
     msg->type = BaseMsg::TYPE::SERVICE;
     msg->source = source;
-    //基本类型的对象没有析构函数
-    //所以回收基本类型组成的数组空间用delete 和 delete[]都可以
-    //无需重新析构方法
+    //閸╃儤婀扮猾璇茬€烽惃鍕�锟界�呰杽濞屸剝婀侀弸鎰�鐎�閸戣姤鏆�
+    //閹碘偓娴犮儱娲栭弨璺虹唨閺堬拷缁�璇茬€风紒鍕�鍨氶惃鍕�鏆熺紒鍕�鈹栭梻瀵告暏delete 閸滐拷 delete[]闁�钘夊讲娴狅拷
+    //閺冪娀娓堕柌宥嗘煀閺嬫劖鐎�閺傝�勭《
     msg->buff = shared_ptr<char>(buff);
     msg->size = len;
     return msg;
 }
 
-//Worker线程调用，进入休眠
+//Worker缁捐法鈻肩拫鍐�鏁ら敍宀冪箻閸忋儰绱ら惇锟�
 void Sunnet::WorkerWait(){
     pthread_mutex_lock(&sleepMtx);
     sleepCount++;
@@ -190,7 +190,7 @@ void Sunnet::WorkerWait(){
 }
 
 
-//检查并唤醒线程
+//濡�鈧�閺屻儱鑻熼崬銈夊晪缁捐法鈻�
 void Sunnet::CheckAndWeakUp(){
     //unsafe
     if(sleepCount == 0) {
@@ -203,7 +203,7 @@ void Sunnet::CheckAndWeakUp(){
 }
 
 
-//添加连接
+//濞ｈ�插�炴潻鐐村复
 int Sunnet::AddConn(int fd, uint32_t id, Conn::TYPE type) {
     auto conn = make_shared<Conn>();
     conn->fd = fd;
@@ -217,7 +217,7 @@ int Sunnet::AddConn(int fd, uint32_t id, Conn::TYPE type) {
     return fd;
 }
 
-//由id查找连接
+//閻㈢湈d閺屻儲澹樻潻鐐村复
 shared_ptr<Conn> Sunnet::GetConn(int fd) {
     shared_ptr<Conn> conn = NULL;
     pthread_rwlock_rdlock(&connsLock);
@@ -231,7 +231,7 @@ shared_ptr<Conn> Sunnet::GetConn(int fd) {
     return conn;
 }
 
-//删除连接
+//閸掔娀娅庢潻鐐村复
 bool Sunnet::RemoveConn(int fd) {
     int result;
     pthread_rwlock_wrlock(&connsLock);
@@ -243,14 +243,14 @@ bool Sunnet::RemoveConn(int fd) {
 }
 
 int Sunnet::Listen(uint32_t port, uint32_t serviceId) {
-    //创建Socket
+    //閸掓稑缂揝ocket
     int listenFd = socket(AF_INET, SOCK_STREAM, 0);
     if(listenFd <= 0){
         cout << "listen error, listenFd <= 0" << endl;
         return -1;
     }
     fcntl(listenFd, F_SETFL, O_NONBLOCK);
-    //创建地址结构
+    //閸掓稑缂撻崷鏉挎絻缂佹挻鐎�
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
@@ -266,20 +266,20 @@ int Sunnet::Listen(uint32_t port, uint32_t serviceId) {
     if(r < 0){
         return -1;
     }
-    //添加到管理结构
+    //濞ｈ�插�為崚鎵�锟斤紕鎮婄紒鎾寸€�
     AddConn(listenFd, serviceId, Conn::TYPE::LISTEN);
-    //Epoll事件（跨线程）
+    //Epoll娴滃�╂�㈤敍鍫ｆ硶缁捐法鈻奸敍锟�
     socketWorker->AddEvent(listenFd);
     return listenFd;
 }
 
 
 void Sunnet::CloseConn(uint32_t fd) {
-    //删除管理结构
+    //閸掔娀娅庣粻锛勬倞缂佹挻鐎�
     bool succ = RemoveConn(fd);
-    //关闭
+    //閸忔娊妫�
     close(fd);
-    //Epoll事件（跨线程）
+    //Epoll娴滃�╂�㈤敍鍫ｆ硶缁捐法鈻奸敍锟�
     if(succ) {
         socketWorker->RemoveEvent(fd);
     }

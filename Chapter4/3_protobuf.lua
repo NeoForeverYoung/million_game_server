@@ -2,17 +2,17 @@ local skynet = require "skynet"
 local pb = require "protobuf"
 
 
---protobuf±àÂë½âÂë
+--protobufç¼–ç è§£ç 
 function test4()
     pb.register_file("./proto/login.pb")
-    --±àÂë
+    --ç¼–ç 
     local msg = {
         id = 101,
         pw = "123456",
     }
     local buff = pb.encode("login.Login", msg)
     print("len:"..string.len(buff))
-    --½âÂë
+    --è§£ç 
     local umsg = pb.decode("login.Login", buff)
     if umsg then
         print("id:"..umsg.id)

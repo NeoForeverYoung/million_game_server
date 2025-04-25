@@ -26,7 +26,7 @@ end
 
 s.resp.kick = function(source)
 	s.leave_scene()
-	--在此处保存角色数据
+	--鍦ㄦ�ゅ�勪繚瀛樿�掕壊鏁版嵁
 	skynet.sleep(200)
 end
 
@@ -40,7 +40,7 @@ end
 
 s.init = function( )
 	--playerid = s.id
-	--在此处加载角色数据
+	--鍦ㄦ�ゅ�勫姞杞借�掕壊鏁版嵁
 	skynet.sleep(200)
 	s.data = {
 		coin = 100,

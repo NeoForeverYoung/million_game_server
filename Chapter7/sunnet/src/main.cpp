@@ -25,7 +25,7 @@ int TestEcho() {
 int main() {
     new Sunnet();
     Sunnet::inst->Start();
-    //启动main服务
+    //閸氾拷閸斺暕ain閺堝秴濮�
     auto t = make_shared<string>("main");
     Sunnet::inst->NewService(t);
     //wait

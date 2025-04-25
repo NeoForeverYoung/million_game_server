@@ -7,13 +7,13 @@ conns = {} --[socket_id] = conn
 players = {} --[playerid] = gateplayer
 
 local closing = false
---不再接收新连接
+--娑撳秴鍟€閹恒儲鏁归弬鎷岀箾閹猴拷
 s.resp.shutdown = function()
     skynet.error(s.name..s.id.." shutdown")
     closing = true
 end
 
---连接类
+--鏉╃偞甯寸猾锟�
 function conn()
     local m = {
         fd = nil,
@@ -22,7 +22,7 @@ function conn()
     return m
 end
 
---玩家类
+--閻溾晛锟藉墎琚�
 function gateplayer()
     local m = {
         playerid = nil,
@@ -30,7 +30,7 @@ function gateplayer()
         conn = nil,
         key = 675475980 ,--math.random( 1, 999999999),
         lost_conn_time = nil,
-        msgcache = {}, --未发送的消息缓存
+        msgcache = {}, --閺堬拷閸欐垿鈧�浣烘畱濞戝牊浼呯紓鎾崇摠
     }
     return m
 end
@@ -73,13 +73,13 @@ s.resp.send = function(source, playerid, msg)
     end
     local c = gplayer.conn
     if c == nil then
-        --return 之前是直接return
-        --掉线，缓存处理。
-        --注意：此缓存系统对应的是客户端主动掉线、锁屏等情况导致的掉线，而不是链路不通的情况。缓存数据只有掉线后的一段，不包含前socket发送失败的
+        --return 娑斿��澧犻弰锟介惄瀛樺复return
+        --閹哄�屽殠閿涘瞼绱︾€涙ê锟藉嫮鎮婇妴锟�
+        --濞夈劍鍓伴敍姘�锟姐倗绱︾€涙�奸兇缂佺喎锟界懓绨查惃鍕�妲哥€广垺鍩涚粩锟芥稉璇插З閹哄�屽殠閵嗕線鏀ｇ仦蹇曠搼閹�鍛�鍠岀€佃壈鍤ч惃鍕�甯€缁惧尅绱濋懓灞肩瑝閺勶拷闁炬崘鐭炬稉宥夆偓姘辨畱閹�鍛�鍠岄妴鍌滅处鐎涙ɑ鏆熼幑锟介崣锟介張澶嬪竴缁惧灝鎮楅惃鍕�绔村▓纰夌礉娑撳秴瀵橀崥锟介崜宄磑cket閸欐垿鈧�浣搞亼鐠愩儳娈�
         table.insert( gplayer.msgcache, msg )
         local len = #gplayer.msgcache
         if len > 500 then
-            skynet.call("agentmgr", "lua", "reqkick", playerid, "gate消息缓存过多")
+            skynet.call("agentmgr", "lua", "reqkick", playerid, "gate濞戝牊浼呯紓鎾崇摠鏉╁洤锟斤拷")
         end
         return
     end
@@ -90,8 +90,8 @@ end
 s.resp.sure_agent = function(source, fd, playerid, agent)
 
 	local conn = conns[fd]
-	if not conn then --登陆过程中已经下线
-		skynet.call("agentmgr", "lua", "reqkick", playerid, "未完成登陆即下线")
+	if not conn then --閻у�氭�版潻鍥┾柤娑擄拷瀹歌尙绮℃稉瀣�鍤�
+		skynet.call("agentmgr", "lua", "reqkick", playerid, "閺堬拷鐎瑰本鍨氶惂濠氭�伴崡鍏呯瑓缁撅拷")
 		return false
 	end
 	
@@ -117,10 +117,10 @@ local disconnect = function(fd)
     end
 
     local playerid = c.playerid
-    --还没完成登录
+    --鏉╂ɑ鐥呯€瑰本鍨氶惂璇茬秿
     if not playerid then
         return
-    --已在游戏中
+    --瀹告彃婀�濞撳憡鍨欐稉锟�
     else
         local gplayer = players[playerid]
         gplayer.conn = nil --  players[playerid] = nil
@@ -128,7 +128,7 @@ local disconnect = function(fd)
             if gplayer.conn ~= nil then
                 return
             end
-            local reason = "断线超时"
+            local reason = "閺傦拷缁捐儻绉撮弮锟�"
             skynet.call("agentmgr", "lua", "reqkick", playerid, reason)
         end)
         
@@ -180,12 +180,12 @@ local process_reconnect = function(fd, msg)
         skynet.error("reconnect fail, key error")
         return
     end
-    --绑定
+    --缂佹垵鐣�
     gplayer.conn = conn
     conn.playerid = playerid
-    --回应
+    --閸ョ偛绨�
     s.resp.send_by_fd(nil, fd, {"reconnect", 0})
-    --发送缓存消息
+    --閸欐垿鈧�浣虹处鐎涙ɑ绉烽幁锟�
     for i, cmsg in ipairs(gplayer.msgcache) do
         s.resp.send_by_fd(nil, fd, cmsg)
     end
@@ -199,19 +199,19 @@ local process_msg = function(fd, msgstr)
 
     local conn = conns[fd]
     local playerid = conn.playerid
-    --特殊断线重连
+    --閻楄�勭暕閺傦拷缁惧潡鍣告潻锟�
     if cmd == "reconnect" then
         process_reconnect(fd, msg)
         return
     end
-    --尚未完成登录流程
+    --鐏忔碍婀�鐎瑰本鍨氶惂璇茬秿濞翠胶鈻�
     if not playerid then
         local node = skynet.getenv("node")
         local nodecfg = runconfig[node]
         local loginid = math.random(1, #nodecfg.login)
         local login = "login"..loginid
 		skynet.send(login, "lua", "client", fd, cmd, msg)
-    --完成登录流程
+    --鐎瑰本鍨氶惂璇茬秿濞翠胶鈻�
     else
         local gplayer = players[playerid]
         local agent = gplayer.agent
@@ -232,8 +232,8 @@ local process_buff = function(fd, readbuff)
     end
 end
 
---每一条连接接收数据处理
---协议格式 cmd,arg1,arg2,...#
+--濮ｅ繋绔撮弶陇绻涢幒銉﹀复閺€鑸垫殶閹癸拷婢跺嫮鎮�
+--閸楀繗锟斤拷閺嶇厧绱� cmd,arg1,arg2,...#
 local recv_loop = function(fd)
     socket.start(fd)
     skynet.error("socket connected " ..fd)
@@ -252,7 +252,7 @@ local recv_loop = function(fd)
     end
 end
 
---有新连接时
+--閺堝�嬫煀鏉╃偞甯撮弮锟�
 local connect = function(fd, addr)
     if closing then
         return

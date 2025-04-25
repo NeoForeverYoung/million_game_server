@@ -10,24 +10,24 @@ class Role{
 var roles = new Map();
 
 var server = net.createServer(function(socket){
-    //新连接
+    //鏂拌繛鎺�
     roles.set(socket, new Role())
 
-    //接收到数据
+    //鎺ユ敹鍒版暟鎹�
     socket.on('data', function(data){
         var role = roles.get(socket);
         var cmd = String(data);
-        //更新位置
+        //鏇存柊浣嶇疆
         if(cmd == "left\r\n") role.x--;
         else if(cmd == "right\r\n") role.x++;
         else if(cmd == "up\r\n") role.y--;
         else if(cmd == "down\r\n") role.y++;
 		else { 
-            // 将消息转发给聊天室
+            // 灏嗘秷鎭�杞�鍙戠粰鑱婂ぉ瀹�
             chatSocket.write(data);
             return;
         };
-        //广播
+        //骞挎挱
         for (let s of roles.keys()) {
             var id = socket.remotePort;
             var str = id + " move to " + role.x + " " + role.y + "\n";
@@ -35,7 +35,7 @@ var server = net.createServer(function(socket){
         }
     });
 
-    //断开连接
+    //鏂�寮€杩炴帴
     socket.on('close',function(){
         roles.delete(socket)
     });
@@ -45,7 +45,7 @@ server.listen(8001);
 
 
 var chatSocket = net.connect({port: 8010}, function() {});
-// 聊天室, 将消息转发给walk server所有连接的客户端
+// 鑱婂ぉ瀹�, 灏嗘秷鎭�杞�鍙戠粰walk server鎵€鏈夎繛鎺ョ殑瀹㈡埛绔�
 chatSocket.on('data', function(data){
     for (let s of roles.keys()) {
         s.write(data);

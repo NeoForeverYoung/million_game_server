@@ -5,7 +5,7 @@ local balls = {} --[playerid] = ball
 local foods = {} --[id] = food
 local food_maxid = 0
 local food_count = 0
---球
+--鐞�
 function ball()
     local m = {
         playerid = nil,
@@ -20,7 +20,7 @@ function ball()
     return m
 end
 
---食物
+--椋熺墿
 function food()
     local m = {
         id = nil,
@@ -30,7 +30,7 @@ function food()
     return m
 end
 
---球列表
+--鐞冨垪琛�
 local function balllist_msg()
     local msg = {"balllist"}
     for i, v in pairs(balls) do
@@ -42,7 +42,7 @@ local function balllist_msg()
     return msg
 end
 
---食物列表
+--椋熺墿鍒楄〃
 local function foodlist_msg()
     local msg = {"foodlist"}
     for i, v in pairs(foods) do
@@ -53,14 +53,14 @@ local function foodlist_msg()
     return msg
 end
 
---广播
+--骞挎挱
 function broadcast(msg)
     for i, v in pairs(balls) do
         s.send(v.node, v.agent, "send", msg)
     end
 end
 
---进入
+--杩涘叆
 s.resp.enter = function(source, playerid, node, agent)
     if balls[playerid] then
         return false
@@ -69,21 +69,21 @@ s.resp.enter = function(source, playerid, node, agent)
     b.playerid = playerid
     b.node = node
     b.agent = agent
-    --广播
+    --骞挎挱
     local entermsg = {"enter", playerid, b.x, b.y, b.size}
     broadcast(entermsg)
-    --记录
+    --璁板綍
     balls[playerid] = b
-    --回应
-    local ret_msg = {"enter",0,"进入成功"}
+    --鍥炲簲
+    local ret_msg = {"enter",0,"杩涘叆鎴愬姛"}
     s.send(b.node, b.agent, "send", ret_msg)
-    --发战场信息
+    --鍙戞垬鍦轰俊鎭�
     s.send(b.node, b.agent, "send", balllist_msg())
     s.send(b.node, b.agent, "send", foodlist_msg())
     return true
 end
 
---退出
+--閫€鍑�
 s.resp.leave = function(source, playerid)
     if not balls[playerid] then
         return false
@@ -94,7 +94,7 @@ s.resp.leave = function(source, playerid)
     broadcast(leavemsg)
 end
 
---改变速度
+--鏀瑰彉閫熷害
 s.resp.shift = function(source, playerid, x, y)
     local b = balls[playerid]
 	if not b then
@@ -152,13 +152,13 @@ function update(frame)
     food_update()
     move_update()
     eat_update()
-    --碰撞略
-    --分裂略
+    --纰版挒鐣�
+    --鍒嗚�傜暐
 end
 
 s.init = function()
     skynet.fork(function()
-        --保持帧率执行
+        --淇濇寔甯х巼鎵ц��
         local stime = skynet.now()
         local frame = 0
         while true do

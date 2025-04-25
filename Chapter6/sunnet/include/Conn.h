@@ -3,7 +3,7 @@ using namespace std;
 
 class Conn {
 public:
-    enum TYPE {          //消息类型
+    enum TYPE {          //濞戝牊浼呯猾璇茬€�
         LISTEN = 1, 
         CLIENT = 2,
     }; 

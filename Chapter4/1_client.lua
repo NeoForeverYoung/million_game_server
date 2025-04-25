@@ -4,15 +4,15 @@ local socket = require "client.socket"
 
 local fd = socket.connect("127.0.0.1", 8888)
 socket.usleep(1*1000000)
---²âÊÔ1 ·¢ËÍÍêÕûÏûÏ¢
+--æµ‹è¯•1 å‘é€å®Œæ•´æ¶ˆæ¯
 local bytes = string.pack(">Hc13", 13, "login,101,134")
 socket.send(fd, bytes)
---¹Ø±Õ
+--å…³é—­
 socket.usleep(1*1000000)
 socket.close(fd)
 
 --[[
---²âÊÔ2 ·¢ËÍ²»ÍêÕû
+--æµ‹è¯•2 å‘é€ä¸å®Œæ•´
 local bytes = string.pack(">Hc10", 10, "login,101,")
 socket.send(fd, bytes)
 socket.usleep(1*1000000)
@@ -22,7 +22,7 @@ socket.send(fd, bytes)
 
 
 --[[
---²âÊÔ3 ¹ýÊ£·¢ËÍ
+--æµ‹è¯•3 è¿‡å‰©å‘é€
 local bytes = string.pack(">Hc13Hc4Hc2", 13, "login,101,134", 4, "work", 4,"wo")
 socket.send(fd, bytes)
 socket.usleep(1*100000)

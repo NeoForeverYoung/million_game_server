@@ -7,36 +7,36 @@ using namespace std;
 
 class Service {
 public:
-    //为效率灵活性放在public
+    //娑撶儤鏅ラ悳鍥╀紥濞茬粯鈧�褎鏂侀崷鈺瑄blic
 
-    //唯一id
+    //閸烇拷娑撯偓id
     uint32_t id;
-    //类型
+    //缁�璇茬€�
     shared_ptr<string> type;
-    // 是否正在退出
+    // 閺勶拷閸氾附锟斤絽婀�闁�鈧�閸戯拷
     bool isExiting = false;
-    //消息列表
+    //濞戝牊浼呴崚妤勩€�
     queue<shared_ptr<BaseMsg>> msgQueue;
     pthread_spinlock_t queueLock;
-    //标记是否在全局队列  true:在队列中，或正在处理
+    //閺嶅洩锟界増妲搁崥锕€婀�閸忋劌鐪�闂冪喎鍨�  true:閸︺劑妲﹂崚妞捐厬閿涘本鍨ㄥ�濓絽婀�婢跺嫮鎮�
     bool inGlobal = false;
     pthread_spinlock_t inGlobalLock;
 public:       
-    //构造和析构函数
+    //閺嬪嫰鈧�鐘叉嫲閺嬫劖鐎�閸戣姤鏆�
     Service();
     ~Service();
-    //回调函数（编写服务逻辑）
+    //閸ョ偠鐨熼崙鑺ユ殶閿涘牏绱�閸愭瑦婀囬崝锟犫偓鏄忕帆閿涳拷
     void OnInit();
     void OnMsg(shared_ptr<BaseMsg> msg);
     void OnExit();
-    //插入消息
+    //閹绘帒鍙嗗☉鍫熶紖
     void PushMsg(shared_ptr<BaseMsg> msg);
-    //执行消息
+    //閹笛嗭拷灞剧Х閹�锟�
     bool ProcessMsg();
     void ProcessMsgs(int max);  
-    //全局队列
+    //閸忋劌鐪�闂冪喎鍨�
     void SetInGlobal(bool isIn);
 private:
-    //取出一条消息
+    //閸欐牕鍤�娑撯偓閺夆剝绉烽幁锟�
     shared_ptr<BaseMsg> PopMsg();
 };

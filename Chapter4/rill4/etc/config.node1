@@ -1,21 +1,21 @@
---必须配置
-thread = 8                          --启用多少个工作线程
-cpath = "./skynet/cservice/?.so"    --用C编写的服务模块的位置
-bootstrap = "snlua bootstrap"       --启动的第一个服务
+--蹇呴』閰嶇疆
+thread = 8                          --鍚�鐢ㄥ�氬皯涓�宸ヤ綔绾跨▼
+cpath = "./skynet/cservice/?.so"    --鐢–缂栧啓鐨勬湇鍔℃ā鍧楃殑浣嶇疆
+bootstrap = "snlua bootstrap"       --鍚�鍔ㄧ殑绗�涓€涓�鏈嶅姟
 
---bootstrap配置项
-start = "main"                      --主程序入口
-harbor = 0                          --不使用主从节点模式
+--bootstrap閰嶇疆椤�
+start = "main"                      --涓荤▼搴忓叆鍙�
+harbor = 0                          --涓嶄娇鐢ㄤ富浠庤妭鐐规ā寮�
 
---lua配置项
+--lua閰嶇疆椤�
 lualoader = "./skynet/lualib/loader.lua"
 luaservice = "./service/?.lua;" .."./service/?/init.lua;".. "./skynet/service/?.lua;"
 lua_path = "./etc/?.lua;" .. "./lualib/?.lua;" ..  "./skynet/lualib/?.lua;" .. "./skynet/lualib/?/init.lua"
 lua_cpath = "./luaclib/?.so;" .. "./skynet/luaclib/?.so"
 
---后台模式
+--鍚庡彴妯″紡
 --daemon = "./skynet.pid"
 --logger = "./userlog"
 
---节点
+--鑺傜偣
 node = "node1"

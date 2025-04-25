@@ -8,7 +8,7 @@ s.snode = nil --scene_node
 s.sname = nil --scene_id
 
 local function random_scene()
-    --选择node
+    --閫夋嫨node
     local nodes = {}
     for i, v in pairs(runconfig.scene) do
         table.insert(nodes, i)
@@ -18,7 +18,7 @@ local function random_scene()
     end
     local idx = math.random( 1, #nodes)
     local scenenode = nodes[idx]
-    --具体场景
+    --鍏蜂綋鍦烘櫙
     local scenelist = runconfig.scene[scenenode]
     local idx = math.random( 1, #scenelist)
     local sceneid = scenelist[idx]
@@ -27,20 +27,20 @@ end
 
 s.client.enter = function(msg)
     if s.sname then
-        return {"enter",1,"已在场景"}
+        return {"enter",1,"宸插湪鍦烘櫙"}
     end
     local snode, sid = random_scene()
     local sname = "scene"..sid
     local isok = s.call(snode, sname, "enter", s.id, mynode, skynet.self())
     if not isok then
-        return {"enter",1,"进入失败"}
+        return {"enter",1,"杩涘叆澶辫触"}
     end
     s.snode = snode
     s.sname = sname
     return nil
 end
 
---改变方向
+--鏀瑰彉鏂瑰悜
 s.client.shift  = function(msg)
     if not s.sname then
         return
@@ -51,7 +51,7 @@ s.client.shift  = function(msg)
 end
 
 s.leave_scene = function()
-    --不在场景
+    --涓嶅湪鍦烘櫙
     if not s.sname then
         return
     end

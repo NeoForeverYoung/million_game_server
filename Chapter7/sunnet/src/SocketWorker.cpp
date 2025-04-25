@@ -8,39 +8,39 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 
-//初始化
+//鍒濆�嬪寲
 void SocketWorker::Init() {
     cout << "SocketWorker Init" << endl;
-    //创建epoll
-    epollFd = epoll_create(1024); // 返回值：非负数:成功的描述符，-1失败
+    //鍒涘缓epoll
+    epollFd = epoll_create(1024); // 杩斿洖鍊硷細闈炶礋鏁�:鎴愬姛鐨勬弿杩扮�︼紝-1澶辫触
     assert(epollFd > 0); 
 }
 
 
 void SocketWorker::OnAccept(shared_ptr<Conn> conn) {
     cout << "OnAccept fd:" << conn->fd << endl;
-    //步骤1：accept
+    //姝ラ��1锛歛ccept
     int clientFd = accept(conn->fd, NULL, NULL);
     if (clientFd < 0) {
         cout << "accept error" << endl;
     }
-    //步骤2：设置非阻塞
+    //姝ラ��2锛氳�剧疆闈為樆濉�
     fcntl(clientFd, F_SETFL, O_NONBLOCK);
-    //写缓冲区大小
+    //鍐欑紦鍐插尯澶у皬
     //unsigned long buffSize = 4294967295;
     //if(setsockopt(clientFd, SOL_SOCKET, SO_SNDBUFFORCE , &buffSize, sizeof(buffSize)) < 0){
     //    cout << "OnAccept setsockopt Fail " << strerror(errno) << endl;
     //}
-    //步骤3：添加到管理结构
+    //姝ラ��3锛氭坊鍔犲埌绠＄悊缁撴瀯
     Sunnet::inst->AddConn(clientFd, conn->serviceId, Conn::TYPE::CLIENT);
-    //步骤4：添加到epoll
+    //姝ラ��4锛氭坊鍔犲埌epoll
     struct epoll_event ev;
 	ev.events = EPOLLIN | EPOLLET;
 	ev.data.fd = clientFd;
 	if (epoll_ctl(epollFd, EPOLL_CTL_ADD, clientFd, &ev) == -1) {
 		cout << "OnAccept epoll_ctl Fail:" << strerror(errno) << endl;
 	}
-    //步骤5：通知
+    //姝ラ��5锛氶€氱煡
     auto msg= make_shared<SocketAcceptMsg>();
     msg->type = BaseMsg::TYPE::SOCKET_ACCEPT;
     msg->listenFd = conn->fd;
@@ -60,7 +60,7 @@ void SocketWorker::OnRW(shared_ptr<Conn> conn, bool r, bool w) {
 
 
 
-//处理事件
+//澶勭悊浜嬩欢
 void SocketWorker::OnEvent(epoll_event ev){
     int fd = ev.data.fd;
     auto conn = Sunnet::inst->GetConn(fd);
@@ -68,17 +68,17 @@ void SocketWorker::OnEvent(epoll_event ev){
         cout << "OnEvent error, conn == NULL" << endl;
         return;
     }
-    //事件类型
+    //浜嬩欢绫诲瀷
     bool isRead = ev.events & EPOLLIN;
     bool isWrite = ev.events & EPOLLOUT;
     bool isError = ev.events & EPOLLERR;
-    //监听Socket
+    //鐩戝惉Socket
     if(conn->type == Conn::TYPE::LISTEN){
         if(isRead) {
             OnAccept(conn);
         }
     }
-    //普通Socket
+    //鏅�閫歋ocket
     else {
         if(isRead || isWrite) {
             OnRW(conn, isRead, isWrite);
@@ -91,23 +91,23 @@ void SocketWorker::OnEvent(epoll_event ev){
 
 void SocketWorker::operator()() {
     while(true) {
-        //阻塞等待
+        //闃诲�炵瓑寰�
         const int EVENT_SIZE = 64;
         struct epoll_event events[EVENT_SIZE];
 	    int eventCount = epoll_wait(epollFd , events, EVENT_SIZE, -1);
-        //取得事件
+        //鍙栧緱浜嬩欢
         for (int i=0; i<eventCount; i++) {
-            epoll_event ev = events[i]; //当前要处理的事件
+            epoll_event ev = events[i]; //褰撳墠瑕佸�勭悊鐨勪簨浠�
             OnEvent(ev);
         }
     }
 }
 
 
-//跨线程调用
+//璺ㄧ嚎绋嬭皟鐢�
 void SocketWorker::AddEvent(int fd) {
     cout << "AddEvent fd " << fd << endl;
-    //添加到epoll
+    //娣诲姞鍒癳poll
     struct epoll_event ev;
 	ev.events = EPOLLIN | EPOLLET;
 	ev.data.fd = fd;
@@ -116,13 +116,13 @@ void SocketWorker::AddEvent(int fd) {
 	}
 }
 
-//跨线程调用
+//璺ㄧ嚎绋嬭皟鐢�
 void SocketWorker::RemoveEvent(int fd) {
     cout << "RemoveEvent fd " << fd << endl;
     epoll_ctl(epollFd, EPOLL_CTL_DEL, fd, NULL);
 }
 
-//跨线程调用
+//璺ㄧ嚎绋嬭皟鐢�
 void SocketWorker::ModifyEvent(int fd, bool epollOut) {
     cout << "ModifyEvent fd " << fd << " " << epollOut << endl;
     struct epoll_event ev;

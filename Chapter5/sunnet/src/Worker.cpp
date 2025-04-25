@@ -4,22 +4,22 @@
 #include "Service.h"
 using namespace std;
 
-//那些调Sunnet的通过传参数解决
-//状态是不在队列中，global=true
+//闁�锝勭昂鐠嬪儜unnet閻ㄥ嫰鈧�姘崇箖娴肩姴寮�閺佹媽袙閸愶拷
+//閻樿埖鈧�浣规Ц娑撳秴婀�闂冪喎鍨�娑擄拷閿涘疅lobal=true
 void Worker::CheckAndPutGlobal(shared_ptr<Service> srv) {
-    //退出中（只能自己调退出，isExiting不会线程冲突）
+    //闁�鈧�閸戣桨鑵戦敍鍫濆涧閼冲€熷殰瀹歌精鐨熼柅鈧�閸戠尨绱漣sExiting娑撳秳绱扮痪璺ㄢ柤閸愯尙鐛婇敍锟�
     if(srv->isExiting){ 
         return; 
     }
 
     pthread_spin_lock(&srv->queueLock);
     {
-        //重新放回全局队列
+        //闁插秵鏌婇弨鎯ф礀閸忋劌鐪�闂冪喎鍨�
         if(!srv->msgQueue.empty()) {
-            //此时srv->inGlobal一定是true
+            //濮濄倖妞俿rv->inGlobal娑撯偓鐎规碍妲竧rue
             Sunnet::inst->PushGlobalQueue(srv);
         }
-        //不在队列中，重设inGlobal
+        //娑撳秴婀�闂冪喎鍨�娑擄拷閿涘矂鍣哥拋绶刵Global
         else {
             srv->SetInGlobal(false);
         }
@@ -29,7 +29,7 @@ void Worker::CheckAndPutGlobal(shared_ptr<Service> srv) {
 
 
 
-//线程函数
+//缁捐法鈻奸崙鑺ユ殶
 void Worker::operator()() {
     while(true) {
         shared_ptr<Service> srv = Sunnet::inst->PopGlobalQueue();

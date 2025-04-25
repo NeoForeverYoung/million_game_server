@@ -1,7 +1,7 @@
 local skynet = require "skynet"
 local pb = require "protobuf"
 local mysql = require "skynet.db.mysql"
-local db  --Êı¾İ¿â¶ÔÏó£¬Ê¡ÂÔÁ¬½ÓÊı¾İ¿âµÄ´úÂë
+local db  --æ•°æ®åº“å¯¹è±¡ï¼Œçœç•¥è¿æ¥æ•°æ®åº“çš„ä»£ç 
 
 function test5()
     local playerdata = {}
@@ -21,7 +21,7 @@ end
 
 function test6()
     pb.register_file("./storage/playerdata.pb")
-    --´´½Ç
+    --åˆ›è§’
     local playerdata = {
         playerid = 109,
         coin = 97,
@@ -29,13 +29,13 @@ function test6()
         level = 3,
         last_login_time = os.time(),
 	}
-	--ĞòÁĞ»¯
+	--åºåˆ—åŒ–
     local data = pb.encode("playerdata.BaseInfo", playerdata)
 	print("data len:"..string.len(data))
-	--´æÈëÊı¾İ¿â
+	--å­˜å…¥æ•°æ®åº“
     local sql = string.format("insert into baseinfo (playerid, data) values (%d, %s)", 109, mysql.quote_sql_str(data))
 	local res = db:query(sql)
-	--²é¿´´æ´¢½á¹û
+	--æŸ¥çœ‹å­˜å‚¨ç»“æœ
     if res.err then
         print("error:"..res.err)
     else
@@ -46,10 +46,10 @@ end
 
 function test7()
 	pb.register_file("./storage/playerdata.pb")
-	--¶ÁÈ¡Êı¾İ¿â£¨ºöÂÔ¶ÁÈ¡Ê§°ÜµÄÇé¿ö£©
+	--è¯»å–æ•°æ®åº“ï¼ˆå¿½ç•¥è¯»å–å¤±è´¥çš„æƒ…å†µï¼‰
     local sql = string.format("select * from baseinfo where playerid = 109")
     local res = db:query(sql)
-	--·´ĞòÁĞ»¯
+	--ååºåˆ—åŒ–
     local data = res[1].data
     print("data len:"..string.len(data))
     local udata = pb.decode("playerdata.BaseInfo", data)
@@ -57,7 +57,7 @@ function test7()
         print("error")
         return false
 	end
-    --Êä³ö
+    --è¾“å‡º
     local playerdata = udata
     print("coin:"..playerdata.coin)
     print("name:"..playerdata.name)

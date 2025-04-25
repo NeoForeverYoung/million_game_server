@@ -2,13 +2,13 @@ local skynet = require "skynet"
 local cluster = require "skynet.cluster"
 
 local M = {
-	--类型和id
+	--绫诲瀷鍜宨d
 	name = "",
 	id = 0,
-	--回调函数
+	--鍥炶皟鍑芥暟
 	exit = nil,
 	init = nil,
-	--分发方法
+	--鍒嗗彂鏂规硶
 	resp = {},
 }
 

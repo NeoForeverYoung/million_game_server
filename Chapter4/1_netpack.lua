@@ -5,47 +5,47 @@ local netpack = require "skynet.netpack"
 local queue    -- message queue
 
 
---ÓĞĞÂÁ¬½Ó
+--æœ‰æ–°è¿æ¥
 function process_connect(fd, addr)
      skynet.error("new conn fd:"..fd.." addr:"..addr)
      socketdriver.start(fd)
 end
 
---¹Ø±ÕÁ¬½Ó
+--å…³é—­è¿æ¥
 function process_close(fd)
      skynet.error("close fd:"..fd)
 end
 
---·¢Éú´íÎó
+--å‘ç”Ÿé”™è¯¯
 function process_error(fd, error)
      skynet.error("error fd:"..fd.." error:"..error)
 end
 
---·¢Éú¾¯¸æ
+--å‘ç”Ÿè­¦å‘Š
 function process_warning(fd, size)
      skynet.error("warning fd:"..fd.." size:"..size)
 end
 
 
---´¦ÀíÏûÏ¢
+--å¤„ç†æ¶ˆæ¯
 function process_msg(fd, msg, sz)
      local str = netpack.tostring(msg,sz)
      skynet.error("recv from fd:"..fd .." str:"..str)
 End
 
---ÊÕµ½¶àÓÚ1ÌõÏûÏ¢Ê±
+--æ”¶åˆ°å¤šäº1æ¡æ¶ˆæ¯æ—¶
 function process_more()
      for fd, msg, sz in netpack.pop, queue do
           skynet.fork(process_msg, fd, msg, sz)
      end
 end
 
---½âÂëµ×²ã´«À´µÄSOCKETÀàĞÍÏûÏ¢
+--è§£ç åº•å±‚ä¼ æ¥çš„SOCKETç±»å‹æ¶ˆæ¯
 function socket_unpack( msg, sz )
      return netpack.filter( queue, msg, sz)
 end
 
---´¦Àíµ×²ã´«À´µÄSOCKETÀàĞÍÏûÏ¢
+--å¤„ç†åº•å±‚ä¼ æ¥çš„SOCKETç±»å‹æ¶ˆæ¯
 function socket_dispatch(_, _, q, type, ...)
      skynet.error("socket_dispatch type:"..(type or "nil"))
      queue = q
@@ -66,15 +66,15 @@ end
 
 
 skynet.start(function()
-     --×¢²áSOCKETÀàĞÍÏûÏ¢
+     --æ³¨å†ŒSOCKETç±»å‹æ¶ˆæ¯
      skynet.register_protocol( {
           name = "socket",
           id = skynet.PTYPE_SOCKET,
           unpack = socket_unpack,
           dispatch = socket_dispatch,
      })
-     --×¢²áLuaÀàĞÍÏûÏ¢£¨skynet.dispatch ÂÔ£©
-     --¿ªÆô¼àÌı
+     --æ³¨å†ŒLuaç±»å‹æ¶ˆæ¯ï¼ˆskynet.dispatch ç•¥ï¼‰
+     --å¼€å¯ç›‘å¬
      local listenfd = socketdriver.listen("0.0.0.0", 8888)
      socketdriver.start(listenfd)
 end)

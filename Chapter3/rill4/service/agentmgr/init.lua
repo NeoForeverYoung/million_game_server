@@ -1,17 +1,17 @@
 local skynet = require "skynet"
 local s = require "service"
 
---状态
+--鐘舵€�
 STATUS = {
 	LOGIN = 2,
 	GAME = 3,
 	LOGOUT = 4,
 }
 
---玩家列表
+--鐜╁�跺垪琛�
 local players = {}
 
---玩家类
+--鐜╁�剁被
 function mgrplayer()
     local m = {
         playerid = nil,
@@ -25,7 +25,7 @@ end
 
 s.resp.reqlogin = function(source, playerid, node, gate)
 	local mplayer = players[playerid]
-	--登陆过程禁止顶替
+	--鐧婚檰杩囩▼绂佹�㈤《鏇�
 	if mplayer and mplayer.status == STATUS.LOGOUT then
 		skynet.error("reqlogin fail, at status LOGOUT " ..playerid )
 		return false
@@ -34,7 +34,7 @@ s.resp.reqlogin = function(source, playerid, node, gate)
 		skynet.error("reqlogin fail, at status LOGIN " ..playerid)
 		return false
 	end
-	--在线，顶替
+	--鍦ㄧ嚎锛岄《鏇�
 	if mplayer then
 		local pnode = mplayer.node
 		local pagent = mplayer.agent
@@ -42,10 +42,10 @@ s.resp.reqlogin = function(source, playerid, node, gate)
 		mplayer.status = STATUS.LOGOUT,
 		s.call(pnode, pagent, "kick")
 		s.send(pnode, pagent, "exit")
-		s.send(pnode, pgate, "send", playerid, {"kick","顶替下线"})
+		s.send(pnode, pgate, "send", playerid, {"kick","椤舵浛涓嬬嚎"})
 		s.call(pnode, pgate, "kick", playerid)
 	end
-	--上线
+	--涓婄嚎
 	local player = mgrplayer()
 	player.playerid = playerid
 	player.node = node
@@ -82,7 +82,7 @@ s.resp.reqkick = function(source, playerid, reason)
 	return true
 end
 
---情况 永不下线
+--鎯呭喌 姘镐笉涓嬬嚎
 
 
 s.start(...)

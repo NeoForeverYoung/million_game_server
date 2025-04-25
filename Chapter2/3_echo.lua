@@ -2,17 +2,17 @@ local skynet = require "skynet"
 local socket = require "skynet.socket"
 
 function connect(fd, addr)
-    --启用连接
+    --鍚敤杩炴帴
     print(fd.." connected addr:"..addr)
     socket.start(fd)
-    --消息处理
+    --娑堟伅澶勭悊
     while true do
         local readdata = socket.read(fd)
-        --正常接收
+        --姝ｅ父鎺ユ敹
         if readdata ~= nil then
             print(fd.." recv "..readdata)
             socket.write(fd, readdata)
-        --断开连接
+        --鏂紑杩炴帴
         else
             print(fd.." close ")
             socket.close(fd)

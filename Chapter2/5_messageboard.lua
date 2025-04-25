@@ -6,26 +6,26 @@ local db= nil
 
 
 function connect(fd, addr)
-    --ÆôÓÃÁ¬½Ó
+    --å¯ç”¨è¿æ¥
     print(fd.." connected addr:"..addr)
     socket.start(fd)
-    --ÏûÏ¢´¦Àí
+    --æ¶ˆæ¯å¤„ç†
     while true do
         local readdata = socket.read(fd)
-		--Õı³£½ÓÊÕ
+		--æ­£å¸¸æ¥æ”¶
 		if readdata ~= nil then
-			--·µ»ØÁôÑÔ°åÄÚÈİ
+			--è¿”å›ç•™è¨€æ¿å†…å®¹
 			if readdata == "get\r\n" then
 				local res = db:query("select * from msgs")
 				for i,v in pairs(res) do
 					socket.write (fd, v.id.." "..v.text.."\r\n")
 				end
-			--ÁôÑÔ
+			--ç•™è¨€
 			else
 				local data = string.match( readdata, "set (.-)\r\n")
 				db:query("insert into msgs (text) values (\'"..data.."\')")
 			end
-        --¶Ï¿ªÁ¬½Ó
+        --æ–­å¼€è¿æ¥
         else
             print(fd.." close ")
             socket.close(fd)
@@ -34,10 +34,10 @@ function connect(fd, addr)
 end
 
 skynet.start(function()
-    --ÍøÂç¼àÌı
+    --ç½‘ç»œç›‘å¬
     local listenfd = socket.listen("0.0.0.0", 8888)
     socket.start(listenfd ,connect)
-    --Á¬½ÓÊı¾İ¿â
+    --è¿æ¥æ•°æ®åº“
     db=mysql.connect({
             host="127.0.0.1",
             port=3306,

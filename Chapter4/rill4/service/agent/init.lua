@@ -26,7 +26,7 @@ end
 
 s.resp.kick = function(source)
 	s.leave_scene()
-	--在此处保存角色数据
+	--鍦ㄦ�ゅ�勪繚瀛樿�掕壊鏁版嵁
 	skynet.sleep(200)
 end
 
@@ -38,14 +38,14 @@ s.resp.send = function(source, msg)
 	skynet.send(s.gate, "lua", "send", s.id, msg)
 end
 
---每天第一次登陆调用
+--姣忓ぉ绗�涓€娆＄櫥闄嗚皟鐢�
 function first_login_day()
 	skynet.error("first_login_day")
 end
 
 s.init = function( )
 	--playerid = s.id
-	--在此处加载角色数据
+	--鍦ㄦ�ゅ�勫姞杞借�掕壊鏁版嵁
 	skynet.sleep(200)
 	s.data = {
 		coin = 100,

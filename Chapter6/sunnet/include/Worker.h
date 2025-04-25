@@ -8,10 +8,10 @@ using namespace std;
 
 class Worker { 
 public:
-    int id;             //编号
-    int eachNum;        //每次处理多少条消息
-    void operator()();  //线程函数
+    int id;             //缂栧彿
+    int eachNum;        //姣忔�″�勭悊澶氬皯鏉℃秷鎭�
+    void operator()();  //绾跨▼鍑芥暟
 private:
-    //辅助函数
+    //杈呭姪鍑芥暟
     void CheckAndPutGlobal(shared_ptr<Service> srv);
 };

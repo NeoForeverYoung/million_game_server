@@ -2,7 +2,7 @@ local skynet = require "skynet"
 local mysql = require "skynet.db.mysql"
 
 skynet.start(function()
-    --连接
+    --杩炴帴
     local db=mysql.connect({
         host="39.100.116.101",
         port=3306,
@@ -12,11 +12,11 @@ skynet.start(function()
         max_packet_size = 1024 * 1024,
         on_connect = nil
     })
-    --插入
+    --鎻掑叆
     local res = db:query("insert into msgs (text) values (\'hehe\')")
-    --查询
+    --鏌ヨ
     res = db:query("select * from msgs")
-    --打印
+    --鎵撳嵃
     for i,v in pairs(res) do
         print ( i," ",v.id, " ",v.text)
     end

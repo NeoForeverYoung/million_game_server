@@ -6,13 +6,13 @@ local cluster = require "skynet.cluster"
 
 
 skynet.start(function()
-	--初始化
+	--鍒濆�嬪寲
 	local mynode = skynet.getenv("node")
 	local nodecfg = runconfig[mynode]
-	--节点管理
+	--鑺傜偣绠＄悊
 	local nodemgr = skynet.newservice("nodemgr","nodemgr", 0)
 	skynet.name("nodemgr", nodemgr)
-	--集群
+	--闆嗙兢
 	cluster.reload(runconfig.cluster)
 	cluster.open(mynode)
 	--gate
@@ -39,6 +39,6 @@ skynet.start(function()
 		local srv = skynet.newservice("scene", "scene", sid)
 		skynet.name("scene"..sid, srv)
 	end
-	--退出自身
+	--閫€鍑鸿嚜韬�
     skynet.exit()
 end)

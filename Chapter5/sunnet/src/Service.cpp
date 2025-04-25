@@ -2,20 +2,20 @@
 #include "Sunnet.h"
 #include <iostream>
 
-//构造函数
+//��见墙��祉𤗈�黸���嚙�
 Service::Service() {
-    //初始化锁
-    pthread_spin_init(&queueLock, PTHREAD_PROCESS_PRIVATE);//看看参数有什么区别，Skynet怎么用的
+    //��埝��嚙賢洩撖脤𪃭嚙�
+    pthread_spin_init(&queueLock, PTHREAD_PROCESS_PRIVATE);//�䥥戭祆����坔�𥟇�罸��憭厩��瘨𥪜�嘥偺��𡜐蕭��𥕦革kynet�𤁗摨萘�鮋錬��扳��
     pthread_spin_init(&inGlobalLock, PTHREAD_PROCESS_PRIVATE);
 }
 
-//析构函数
+//��𧢲�剔�舫�𤏸𥁒���
 Service::~Service(){
     pthread_spin_destroy(&queueLock);
     pthread_spin_destroy(&inGlobalLock);
 }
 
-//插入消息
+//�縧��穃��憡穃�煺��
 void Service::PushMsg(shared_ptr<BaseMsg> msg) {
     pthread_spin_lock(&queueLock);
     {
@@ -24,10 +24,10 @@ void Service::PushMsg(shared_ptr<BaseMsg> msg) {
     pthread_spin_unlock(&queueLock);
 }
 
-//取出消息
+//��蹱𡵆�黆憡穃�煺��
 shared_ptr<BaseMsg> Service::PopMsg() {
     shared_ptr<BaseMsg> msg = NULL;
-    //取一条消息
+    //��蹱僙蝡湧�争��蝘琿𦀩嚙�
     pthread_spin_lock(&queueLock);
     {
         if (!msgQueue.empty()) { 
@@ -39,7 +39,7 @@ shared_ptr<BaseMsg> Service::PopMsg() {
     return msg;
 }
 
-//处理一条消息，返回值代表是否处理
+//瞉嗅𤅷��𦠜�𣏾�祇�争��蝘琿𦀩嚙賡�𥕦��蝜煾摚��聆�祇𡢿�𥈡��䜘�行孛��𡄯��嚙賢𤅷���
 bool Service::ProcessMsg() {
     shared_ptr<BaseMsg> msg = PopMsg();
     if(msg) {
@@ -51,7 +51,7 @@ bool Service::ProcessMsg() {
     }
 } 
 
-//处理N条消息，返回值代表是否处理
+//瞉嗅𤅷��𨂾��争��蝘琿𦀩嚙賡�𥕦��蝜煾摚��聆�祇𡢿�𥈡��䜘�行孛��𡄯��嚙賢𤅷���
 void Service::ProcessMsgs(int max) {
     for(int i=0; i<max; i++){
         bool succ = ProcessMsg();
@@ -61,14 +61,14 @@ void Service::ProcessMsgs(int max) {
     }
 }
 
-//创建服务后触发
+//��埝�条�㯄��撊�憪罸�𡁜漱�閖�辷蕭
 void Service::OnInit() {
     cout << "[" << id <<"] OnInit"  << endl;
 } 
 
-//收到消息时触发
+//���頝箏��憡穃�煺�������匾閖�辷蕭
 void Service::OnMsg(shared_ptr<BaseMsg> msg) {
-    //测试用
+    //憡游洎�糓�錬嚙�
     if(msg->type == BaseMsg::TYPE::SERVICE) {
         auto m = dynamic_pointer_cast<ServiceMsg>(msg);
         cout << "[" << id <<"] OnMsg " << m->buff << endl;
@@ -83,7 +83,7 @@ void Service::OnMsg(shared_ptr<BaseMsg> msg) {
     }
 }
 
-//退出服务时触发
+//�𢥫��祇�𤑳�䀹����婙��璊���辷��敶�
 void Service::OnExit() {
     cout << "[" << id <<"] OnExit"  << endl;
 }

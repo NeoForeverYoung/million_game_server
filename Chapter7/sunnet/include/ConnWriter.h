@@ -15,12 +15,12 @@ class ConnWriter {
 public:
     int fd;
 private:
-    //是否正在关闭
+    //鏄�鍚︽�ｅ湪鍏抽棴
     bool isClosing = false;
-    list<shared_ptr<WriteObject>> objs;  //双向链表
+    list<shared_ptr<WriteObject>> objs;  //鍙屽悜閾捐〃
 public:
     void EntireWrite(shared_ptr<char> buff, streamsize len);
-    void LingerClose(); //全部发完完再关闭
+    void LingerClose(); //鍏ㄩ儴鍙戝畬瀹屽啀鍏抽棴
     void OnWriteable();
 private:
     void EntireWriteWhenEmpty(shared_ptr<char> buff, streamsize len);

@@ -6,7 +6,7 @@ local runconfig = require "runconfig"
 conns = {} --[socket_id] = conn
 players = {} --[playerid] = gateplayer
 
---连接类
+--杩炴帴绫�
 function conn()
     local m = {
         fd = nil,
@@ -15,7 +15,7 @@ function conn()
     return m
 end
 
---玩家类
+--鐜╁�剁被
 function gateplayer()
     local m = {
         playerid = nil,
@@ -72,8 +72,8 @@ end
 s.resp.sure_agent = function(source, fd, playerid, agent)
 
 	local conn = conns[fd]
-	if not conn then --登陆过程中已经下线
-		skynet.call("agentmgr", "lua", "reqkick", playerid, "未完成登陆即下线")
+	if not conn then --鐧婚檰杩囩▼涓�宸茬粡涓嬬嚎
+		skynet.call("agentmgr", "lua", "reqkick", playerid, "鏈�瀹屾垚鐧婚檰鍗充笅绾�")
 		return false
 	end
 	
@@ -95,13 +95,13 @@ local disconnect = function(fd)
     end
 
     local playerid = c.playerid
-    --还没完成登录
+    --杩樻病瀹屾垚鐧诲綍
     if not playerid then
         return
-    --已在游戏中
+    --宸插湪娓告垙涓�
     else
         players[playerid] = nil
-        local reason = "断线"
+        local reason = "鏂�绾�"
         skynet.call("agentmgr", "lua", "reqkick", playerid, reason)
     end
 end
@@ -135,14 +135,14 @@ local process_msg = function(fd, msgstr)
 
     local conn = conns[fd]
     local playerid = conn.playerid
-    --尚未完成登录流程
+    --灏氭湭瀹屾垚鐧诲綍娴佺▼
     if not playerid then
         local node = skynet.getenv("node")
         local nodecfg = runconfig[node]
         local loginid = math.random(1, #nodecfg.login)
         local login = "login"..loginid
 		skynet.send(login, "lua", "client", fd, cmd, msg)
-    --完成登录流程
+    --瀹屾垚鐧诲綍娴佺▼
     else
         local gplayer = players[playerid]
         local agent = gplayer.agent
@@ -163,8 +163,8 @@ local process_buff = function(fd, readbuff)
     end
 end
 
---每一条连接接收数据处理
---协议格式 cmd,arg1,arg2,...#
+--姣忎竴鏉¤繛鎺ユ帴鏀舵暟鎹�澶勭悊
+--鍗忚��鏍煎紡 cmd,arg1,arg2,...#
 local recv_loop = function(fd)
     socket.start(fd)
     skynet.error("socket connected " ..fd)
@@ -183,7 +183,7 @@ local recv_loop = function(fd)
     end
 end
 
---有新连接时
+--鏈夋柊杩炴帴鏃�
 local connect = function(fd, addr)
     print("connect from " .. addr .. " " .. fd)
 	local c = conn()
@@ -205,7 +205,7 @@ end
 
 s.start(...)
 
---[[ 带有粘包处理
+--[[ 甯︽湁绮樺寘澶勭悊
 function process_msgbuff(id, msgbuff)
     skynet.error("process_msgbuff" .. msgbuff)
     
@@ -215,7 +215,7 @@ function process_msgbuff(id, msgbuff)
     print(msg.hello)
     print(msg.a)
     --socket.write(id, msgbuff)
-    --分发
+    --鍒嗗彂
 end
 
 function process_buff(id, readbuff)
@@ -237,7 +237,7 @@ function process_buff(id, readbuff)
     return  readbuff 
 end
 
---每一条连接做处理
+--姣忎竴鏉¤繛鎺ュ仛澶勭悊
 function run(id)
     socket.start(id)
     local readbuff = ""

@@ -4,20 +4,20 @@
 #include <unistd.h>
 #include <string.h>
 
-//构造函数
+//��见墙��祉𤗈�黸���嚙�
 Service::Service() {
-    //初始化锁
-    pthread_spin_init(&queueLock, PTHREAD_PROCESS_PRIVATE);//看看参数有什么区别，Skynet怎么用的
+    //��埝��嚙賢洩撖脤𪃭嚙�
+    pthread_spin_init(&queueLock, PTHREAD_PROCESS_PRIVATE);//�䥥戭祆����坔�𥟇�罸��憭厩��瘨𥪜�嘥偺��𡜐蕭��𥕦革kynet�𤁗摨萘�鮋錬��扳��
     pthread_spin_init(&inGlobalLock, PTHREAD_PROCESS_PRIVATE);
 }
 
-//析构函数
+//��𧢲�剔�舫�𤏸𥁒���
 Service::~Service(){
     pthread_spin_destroy(&queueLock);
     pthread_spin_destroy(&inGlobalLock);
 }
 
-//插入消息
+//�縧��穃��憡穃�煺��
 void Service::PushMsg(shared_ptr<BaseMsg> msg) {
     pthread_spin_lock(&queueLock);
     {
@@ -26,10 +26,10 @@ void Service::PushMsg(shared_ptr<BaseMsg> msg) {
     pthread_spin_unlock(&queueLock);
 }
 
-//取出消息
+//��蹱𡵆�黆憡穃�煺��
 shared_ptr<BaseMsg> Service::PopMsg() {
     shared_ptr<BaseMsg> msg = NULL;
-    //取一条消息
+    //��蹱僙蝡湧�争��蝘琿𦀩嚙�
     pthread_spin_lock(&queueLock);
     {
         if (!msgQueue.empty()) { 
@@ -41,7 +41,7 @@ shared_ptr<BaseMsg> Service::PopMsg() {
     return msg;
 }
 
-//处理一条消息，返回值代表是否处理
+//瞉嗅𤅷��𦠜�𣏾�祇�争��蝘琿𦀩嚙賡�𥕦��蝜煾摚��聆�祇𡢿�𥈡��䜘�行孛��𡄯��嚙賢𤅷���
 bool Service::ProcessMsg() {
     shared_ptr<BaseMsg> msg = PopMsg();
     if(msg) {
@@ -53,7 +53,7 @@ bool Service::ProcessMsg() {
     }
 } 
 
-//处理N条消息，返回值代表是否处理
+//瞉嗅𤅷��𨂾��争��蝘琿𦀩嚙賡�𥕦��蝜煾摚��聆�祇𡢿�𥈡��䜘�行孛��𡄯��嚙賢𤅷���
 void Service::ProcessMsgs(int max) {
     for(int i=0; i<max; i++){
         bool succ = ProcessMsg();
@@ -63,39 +63,39 @@ void Service::ProcessMsgs(int max) {
     }
 }
 
-//创建服务后触发
+//��埝�条�㯄��撊�憪罸�𡁜漱�閖�辷蕭
 void Service::OnInit() {
     cout << "[" << id <<"] OnInit"  << endl;
-    //开启监听
+    //撖栽�祇�𡄯蕭�𨫥��脲��
     Sunnet::inst->Sunnet::Listen(8002, id);
 } 
 
-//收到客户端数据
+//���頝箏�𣬚�嫘ǜ��𤤿�䈑蕭������撋�
 void Service::OnSocketData(int fd, const char* buff, int len) {
     cout << "OnSocketData" << fd << " buff: " << buff << endl;
     /* echo
     char wirteBuff[3] = {'l','p','y'};
     write(fd, &wirteBuff, 3);
     */
-    /* 练习题新增行
-    usleep(15000000); //15秒
+    /* 蝻���抒��璉唳酉��𦠜儒��塚蕭嚙�
+    usleep(15000000); //15蝏㚁蕭
     char wirteBuff2[3] = {'n','e','t'};
     int r = write(fd, &wirteBuff2, 3);
     cout << "write2 r:" << r <<  " " << strerror(errno) <<  endl;
     */
-    /*PIPE实验新增行
-    usleep(1000000); //1秒
+    /*PIPE��寧�箇�䠷���踎嚙賜�塚蕭嚙�
+    usleep(1000000); //1蝏㚁蕭
     char wirteBuff3[2] = {'n','o'};
     r = write(fd, &wirteBuff3,2);
     cout << "write3 r:" << r <<  " " << strerror(errno) <<  endl;
     */
-   /*发送大量数据实验
+   /*��蹱ề��砌螂����魿敹娍�罸䌫嚙賜�寧�箇��
    char* wirteBuff = new char[4200000];
    wirteBuff[4200000-1] = 'e';
    int r = write(fd, wirteBuff, 4200000); 
    cout << "write r:" << r <<  " " << strerror(errno) <<  endl;
    */
-   //用ConnWriter发送大量数据
+   //�錬��㺸nnWriter��蹱ề��砌螂����魿敹娍�罸䌫嚙�
    char* wirteBuff = new char[4200000];
    wirteBuff[4200000-1] = 'e';
    auto w = writers[fd];
@@ -103,25 +103,25 @@ void Service::OnSocketData(int fd, const char* buff, int len) {
    w->LingerClose();
 }
 
-//套接字可写
+//瞈�璆�撣渡�𥟇��敶脤�琜蕭
 void Service::OnSocketWritable(int fd) {
     cout << "OnSocketWritable " << fd << endl;
     auto w = writers[fd];
     w->OnWriteable();
 }
 
-//关闭连接前
+//��𤩺𡂝璉湔仪��游葩��橒蕭
 void Service::OnSocketClose(int fd) {
     writers.erase(fd);
     cout << "OnSocketClose " << fd << endl;
 }
 
-//收到其他服务发来的消息
+//���頝箏�屸�𤩺𨑳蝎祇��撊�憪罸�蹱�墧蔥�𨫢�𡠺蝘琿𦀩嚙�
 void Service::OnServiceMsg(shared_ptr<ServiceMsg> msg) {
     cout << "OnServiceMsg " << endl;
 }
 
-//新连接
+//�����𣬚�偦鑬嚙�
 void Service::OnAcceptMsg(shared_ptr<SocketAcceptMsg> msg) {
     cout << "OnAcceptMsg " << msg->clientFd << endl;
     auto w = make_shared<ConnWriter>();
@@ -129,10 +129,10 @@ void Service::OnAcceptMsg(shared_ptr<SocketAcceptMsg> msg) {
     writers.emplace(msg->clientFd, w);
 }
 
-//套接字可读可写
+//瞈�璆�撣渡�𥟇��敶脩��霂脣蔡��琜蕭
 void Service::OnRWMsg(shared_ptr<SocketRWMsg> msg) {
     int fd = msg->fd;
-    //可读
+    //��辷蕭���嚙�
     if(msg->isRead) {
         const int BUFFSIZE = 512;
         char buff[BUFFSIZE];
@@ -151,7 +151,7 @@ void Service::OnRWMsg(shared_ptr<SocketRWMsg> msg) {
             }
         }
     }
-    //可写（注意没有else）
+    //��辷蕭��鞉�嗵�坔�剹�血贋憡𢞖��皝�else��𨥈蕭
     if(msg->isWrite) {
         if(Sunnet::inst->GetConn(fd)){
             OnSocketWritable(fd);
@@ -161,7 +161,7 @@ void Service::OnRWMsg(shared_ptr<SocketRWMsg> msg) {
 
 
 
-//收到消息时触发
+//���頝箏��憡穃�煺�������匾閖�辷蕭
 void Service::OnMsg(shared_ptr<BaseMsg> msg) {
     //SERVICE
     if(msg->type == BaseMsg::TYPE::SERVICE) {
@@ -181,7 +181,7 @@ void Service::OnMsg(shared_ptr<BaseMsg> msg) {
 }
 
 
-//退出服务时触发
+//�𢥫��祇�𤑳�䀹����婙��璊���辷��敶�
 void Service::OnExit() {
     cout << "[" << id <<"] OnExit"  << endl;
 }
