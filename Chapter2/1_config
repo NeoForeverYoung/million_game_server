@@ -1,18 +1,19 @@
---必须配置
-thread = 8                          --启用多少个工作线程
-cpath = "./cservice/?.so"           --用C编写的服务模块的位置
-bootstrap = "snlua bootstrap"       --（固定）启动的第一个服务
+--===== Skynet配置文件 =====
+--必须配置项
+thread = 8                          --启用多少个工作线程，决定了系统可以并行处理的任务数量
+cpath = "./cservice/?.so"           --用C编写的服务模块的搜索路径，用于加载C编写的Skynet服务
+bootstrap = "snlua bootstrap"       --（固定）启动的第一个服务，bootstrap会加载并启动下面指定的start服务
 
 --bootstrap配置项
-start = "main"                      --主服务入口
-harbor = 0                          --（固定）不使用主从节点模式
+start = "main"                      --主服务入口，指定启动的Lua服务名，通常是整个应用的入口点
+harbor = 0                          --（固定）不使用主从节点模式，设为0表示单节点模式，大于0表示多节点集群模式
 
---lua配置项（暂时固定）
-lualoader = "./lualib/loader.lua"
-luaservice = "./service/?.lua;".."./test/?.lua;".."./examples/?.lua;".."./test/?/init.lua"
-lua_path = "./lualib/?.lua;" .. "./lualib/?/init.lua"
-lua_cpath = "./luaclib/?.so"
+--lua配置项（指定Lua相关的搜索路径）
+lualoader = "./lualib/loader.lua"   --Lua加载器的路径，用于加载Lua脚本
+luaservice = "./service/?.lua;".."./test/?.lua;".."./examples/?.lua;".."./test/?/init.lua"  --Lua服务的搜索路径
+lua_path = "./lualib/?.lua;" .. "./lualib/?/init.lua"  --Lua模块的搜索路径，类似于LUA_PATH环境变量
+lua_cpath = "./luaclib/?.so"        --Lua C模块的搜索路径，类似于LUA_CPATH环境变量
 
---后台模式（必要时开启）
---daemon = "./skynet.pid"
---logger = "./userlog"
+--后台模式（需要时可开启）
+--daemon = "./skynet.pid"           --启用后台运行模式，会将进程ID写入指定文件
+--logger = "./userlog"              --指定日志文件路径，日志将写入该文件而非控制台

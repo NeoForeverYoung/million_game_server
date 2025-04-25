@@ -1,5 +1,6 @@
 var net = require('net');
 
+// 角色类，用于存储角色的位置信息
 class Role{
     constructor() {
         this.x = 0;
@@ -7,27 +8,28 @@ class Role{
     }
 }
 
+// 存储所有连接的客户端对应的角色信息
 var roles = new Map();
 
 var server = net.createServer(function(socket){
-    //鏂拌繛鎺�
+    // 新连接建立时，为客户端创建角色
     roles.set(socket, new Role())
 
-    //鎺ユ敹鍒版暟鎹�
+    // 接收到客户端发送的数据
     socket.on('data', function(data){
         var role = roles.get(socket);
         var cmd = String(data);
-        //鏇存柊浣嶇疆
+        // 根据命令更新角色位置
         if(cmd == "left\r\n") role.x--;
         else if(cmd == "right\r\n") role.x++;
         else if(cmd == "up\r\n") role.y--;
         else if(cmd == "down\r\n") role.y++;
 		else { 
-            // 灏嗘秷鎭�杞�鍙戠粰鑱婂ぉ瀹�
+            // 将非移动消息转发给聊天服务器
             chatSocket.write(data);
             return;
         };
-        //骞挎挱
+        // 广播位置变化给所有客户端
         for (let s of roles.keys()) {
             var id = socket.remotePort;
             var str = id + " move to " + role.x + " " + role.y + "\n";
@@ -35,17 +37,17 @@ var server = net.createServer(function(socket){
         }
     });
 
-    //鏂�寮€杩炴帴
+    // 客户端断开连接
     socket.on('close',function(){
         roles.delete(socket)
     });
 });
 
-server.listen(8001);
+server.listen(8001); // 监听8001端口
 
 
-var chatSocket = net.connect({port: 8010}, function() {});
-// 鑱婂ぉ瀹�, 灏嗘秷鎭�杞�鍙戠粰walk server鎵€鏈夎繛鎺ョ殑瀹㈡埛绔�
+var chatSocket = net.connect({port: 8010}, function() {}); // 连接到聊天服务器
+// 聊天室，将聊天服务器的消息转发给walk server的所有客户端
 chatSocket.on('data', function(data){
     for (let s of roles.keys()) {
         s.write(data);
