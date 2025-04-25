@@ -23,6 +23,7 @@ var server = net.createServer(function(socket){
         else if(cmd == "up\r\n") role.y--;
         else if(cmd == "down\r\n") role.y++;
 		else { 
+            // 将消息转发给聊天室
             chatSocket.write(data);
             return;
         };
@@ -44,6 +45,7 @@ server.listen(8001);
 
 
 var chatSocket = net.connect({port: 8010}, function() {});
+// 聊天室, 将消息转发给walk server所有连接的客户端
 chatSocket.on('data', function(data){
     for (let s of roles.keys()) {
         s.write(data);

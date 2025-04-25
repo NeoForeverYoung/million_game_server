@@ -25,8 +25,10 @@ var server = net.createServer(function(socket){
 
         //广播
         for (let s of roles.keys()) {
+            // 获取socket的远程端口, 并转换为字符串
+            var ip = socket.remoteAddress;
             var id = socket.remotePort;
-            var str = id + " move to " + role.x + " " + role.y + "\n";
+            var str = ip + ":" + id + " move to " + role.x + " " + role.y + "\n";
             s.write(str);
         }
     });
