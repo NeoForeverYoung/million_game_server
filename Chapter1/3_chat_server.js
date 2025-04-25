@@ -3,9 +3,9 @@ var net = require('net');
 var scenes = new Map();
 
 var server = net.createServer(function(socket){
-    scenes.set(socket, true) //ĞÂÁ¬½Ó
+    scenes.set(socket, true) //æ–°è¿æ¥
 
-    socket.on('data', function(data) { //ÊÕµ½Êı¾İ
+    socket.on('data', function(data) { //æ”¶åˆ°æ¶ˆæ¯
         for (let s of scenes.keys()) {
             s.write(data);
         }

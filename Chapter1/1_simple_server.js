@@ -3,14 +3,14 @@ var net = require('net');
 var server = net.createServer(function(socket){
     console.log('connected, port:' + socket.remotePort);
 
-    //½ÓÊÕµ½Êı¾İ
+    //æ¥æ”¶åˆ°æ•°æ®
     socket.on('data', function(data){
         console.log('client send:' + data);
-        var ret = "àÅàÅ," + data;
+        var ret = "å›å¤," + data;
         socket.write(ret);
     });
 
-    //¶Ï¿ªÁ¬½Ó
+    //æ–­å¼€è¿æ¥
     socket.on('close',function(){
         console.log('closed, port:' + socket.remotePort);
     });

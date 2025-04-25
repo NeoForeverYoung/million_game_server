@@ -10,20 +10,20 @@ class Role{
 var roles = new Map();
 
 var server = net.createServer(function(socket){
-    //ĞÂÁ¬½Ó
+    //æ–°è¿æ¥
     roles.set(socket, new Role())
 
-    //½ÓÊÕµ½Êı¾İ
+    //æ¥æ”¶åˆ°æ•°æ®
     socket.on('data', function(data){
         var role = roles.get(socket);
         var cmd = String(data);
-        //¸üĞÂÎ»ÖÃ
+        //æ›´æ–°ä½ç½®
         if(cmd == "left\r\n") role.x--;
         else if(cmd == "right\r\n") role.x++;
         else if(cmd == "up\r\n") role.y--;
         else if(cmd == "down\r\n") role.y++;
 
-        //¹ã²¥
+        //å¹¿æ’­
         for (let s of roles.keys()) {
             var id = socket.remotePort;
             var str = id + " move to " + role.x + " " + role.y + "\n";
@@ -31,7 +31,7 @@ var server = net.createServer(function(socket){
         }
     });
 
-    //¶Ï¿ªÁ¬½Ó
+    //æ–­å¼€è¿æ¥
     socket.on('close',function(){
         roles.delete(socket)
     });
